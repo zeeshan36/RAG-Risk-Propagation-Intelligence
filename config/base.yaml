@@ -1,34 +1,42 @@
 app:
-  name: rag-risk-propagation
-  env: dev
-  log_level: INFO
+  name: rag-risk-propagation        # application identifier
+  env: dev                          # possible values: dev, prod, test_minimal_no_internet
+  log_level: INFO                   # possible values: DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 features:
-  use_graph_db: false
-  use_geospatial: false
-  use_kafka_events: false
-  use_synthetic_data: false
-  use_internet_search: false
-  use_advanced_graph_algo: false
+  use_graph_db: false               # possible values: true, false
+  use_geospatial: false             # possible values: true, false
+  use_kafka_events: false           # possible values: true, false
+  use_synthetic_data: false         # possible values: true, false
+  use_internet_search: false        # possible values: true, false
+  use_advanced_graph_algo: false    # possible values: true, false (requires use_graph_db=true)
+  use_reranker: false               # possible values: true, false
+  use_chunker: false                # possible values: true, false
 
 vector_store:
-  provider: memory
-  embedding_model: sentence-transformers/all-MiniLM-L6-v2
-  collection_name: supply_chain_docs
-  persist_directory: ./data/chroma
+  provider: memory                                            # possible values: memory, chroma, none
+  embedding_model: sentence-transformers/all-MiniLM-L6-v2     # HuggingFace sentence-transformer model name
+  collection_name: supply_chain_docs                          # vector collection / index name
+  persist_directory: ./data/chroma                            # local path for Chroma persistence
 
 llm:
-  provider: fake
-  model: gpt-4o
-  temperature: 0.0
-  max_tokens: 2048
+  provider: fake                    # possible values: fake, openai, copilot, kimi, openrouter
+  model: gpt-4o                     # model name; provider-specific (e.g., gpt-4o, moonshot-v1-8k)
+  temperature: 0.0                  # sampling temperature; 0.0 (deterministic) to 2.0
+  max_tokens: 2048                  # maximum completion tokens per call
+  api_key: null                     # API key string or null to use env vars
+  base_url: null                    # custom endpoint URL or null for the provider default
 
 graph_db:
-  provider: neo4j
-  uri: bolt://localhost:7687
-  user: neo4j
-  password: password
+  provider: neo4j                   # possible values: neo4j, memory
+  uri: bolt://localhost:7687        # Bolt URI when provider=neo4j
+  user: neo4j                       # graph database username
+  password: null                    # graph database password; set via config or RAGRP_GRAPH_DB__PASSWORD
+
+internet_search:
+  search_api_url: null              # external search endpoint URL (e.g., https://api.search.example.com)
+  api_key: null                     # API key for the search endpoint; set via config or RAGRP_INTERNET_SEARCH__API_KEY
 
 server:
-  host: 0.0.0.0
-  port: 8000
+  host: 0.0.0.0                     # bind host
+  port: 8000                        # bind port
