@@ -1,0 +1,20 @@
+app:
+  env: test_minimal_no_internet
+  log_level: INFO
+
+features:
+  use_graph_db: false
+  use_geospatial: false
+  use_kafka_events: false
+  use_internet_search: false
+  use_reranker: false
+  use_chunker: false
+
+vector_store:
+  provider: memory
+
+llm:
+  provider: fake
+
+server:
+  port: 8000

@@ -1,0 +1,29 @@
+Metadata-Version: 2.4
+Name: rag-risk-propagation
+Version: 0.1.0
+Summary: GraphRAG-based supply-chain risk propagation system
+Requires-Python: >=3.10
+Requires-Dist: fastapi>=0.110.0
+Requires-Dist: uvicorn[standard]>=0.27.0
+Requires-Dist: pydantic>=2.6.0
+Requires-Dist: pyyaml>=6.0.1
+Requires-Dist: python-dotenv>=1.0.0
+Requires-Dist: jinja2>=3.1.3
+Provides-Extra: vector
+Requires-Dist: chromadb>=0.4.22; extra == "vector"
+Provides-Extra: graph
+Requires-Dist: neo4j>=5.17.0; extra == "graph"
+Requires-Dist: networkx>=3.2; extra == "graph"
+Provides-Extra: geo
+Requires-Dist: shapely>=2.0.3; extra == "geo"
+Provides-Extra: kafka
+Requires-Dist: kafka-python-ng>=24.0; extra == "kafka"
+Provides-Extra: llm
+Requires-Dist: openai>=1.12.0; extra == "llm"
+Requires-Dist: jinja2>=3.1.3; extra == "llm"
+Provides-Extra: all
+Requires-Dist: rag-risk-propagation[geo,graph,kafka,llm,vector]; extra == "all"
+Provides-Extra: dev
+Requires-Dist: pytest>=8.0.0; extra == "dev"
+Requires-Dist: httpx>=0.27.0; extra == "dev"
+Requires-Dist: pytest-asyncio>=0.23.0; extra == "dev"

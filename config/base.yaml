@@ -1,0 +1,34 @@
+app:
+  name: rag-risk-propagation
+  env: dev
+  log_level: INFO
+
+features:
+  use_graph_db: false
+  use_geospatial: false
+  use_kafka_events: false
+  use_synthetic_data: false
+  use_internet_search: false
+  use_advanced_graph_algo: false
+
+vector_store:
+  provider: memory
+  embedding_model: sentence-transformers/all-MiniLM-L6-v2
+  collection_name: supply_chain_docs
+  persist_directory: ./data/chroma
+
+llm:
+  provider: fake
+  model: gpt-4o
+  temperature: 0.0
+  max_tokens: 2048
+
+graph_db:
+  provider: neo4j
+  uri: bolt://localhost:7687
+  user: neo4j
+  password: password
+
+server:
+  host: 0.0.0.0
+  port: 8000

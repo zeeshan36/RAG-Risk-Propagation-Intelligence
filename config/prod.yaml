@@ -1,0 +1,11 @@
+app:
+  log_level: WARNING
+
+features:
+  use_graph_db: true
+  use_geospatial: true
+  use_kafka_events: true
+  use_internet_search: true
+
+server:
+  port: 8080

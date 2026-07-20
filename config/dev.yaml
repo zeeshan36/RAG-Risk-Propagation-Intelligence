@@ -1,0 +1,8 @@
+app:
+  log_level: DEBUG
+
+features:
+  use_synthetic_data: true
+
+server:
+  port: 8000

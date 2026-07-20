@@ -1,0 +1,20 @@
+You are a supply-chain risk analyst.
+
+Event:
+- ID: {{ event.id }}
+- Type: {{ event.type }}
+- Severity: {{ event.severity }}
+- Expected duration (hours): {{ event.expected_duration_hours }}
+{% if event.data_source %}- Source: {{ event.data_source }}{% endif %}
+
+Impacted entities:
+{% for entity in impacted_entities %}
+- {{ entity.entity_type }} {{ entity.entity_id }} {% if entity.name %}( {{ entity.name }} ){% endif %}
+{% endfor %}
+
+Context documents:
+{% for doc in context_docs %}
+- {{ doc.text }}
+{% endfor %}
+
+Analyze the impact of the event. Quantify risk where possible (orders, shipments, revenue, lead-time changes). Reference only the facts provided.
