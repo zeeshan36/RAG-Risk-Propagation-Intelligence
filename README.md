@@ -44,6 +44,33 @@ Feature flags (all default to `false` in minimal mode):
 - `USE_RERANKER` — cross-encoder reranking of retrieved chunks
 - `USE_CHUNKER` — heading-aware document chunking before indexing
 
+### LLM providers
+
+The `llm.provider` setting selects the generation backend. All real providers use
+the OpenAI-compatible chat-completions API via the `openai` package.
+
+- `fake` — deterministic canned responses, default in minimal mode
+- `openai` — OpenAI (`https://api.openai.com/v1`)
+- `copilot` — GitHub Copilot (`https://api.githubcopilot.com/chat/completions`)
+- `kimi` — Moonshot Kimi (`https://api.moonshot.cn/v1`)
+- `openrouter` — OpenRouter (`https://openrouter.ai/api/v1`)
+
+```yaml
+llm:
+  provider: kimi
+  model: moonshot-v1-8k
+  api_key: null        # or set via env var
+  base_url: null       # override the provider default if needed
+```
+
+API key resolution order: `llm.api_key` config value, then provider-specific
+environment variables:
+
+- `OPENAI_API_KEY`
+- `COPILOT_API_KEY` or `GITHUB_TOKEN`
+- `MOONSHOT_API_KEY`
+- `OPENROUTER_API_KEY`
+
 ## API overview
 
 - `GET /health`, `GET /ready`, `GET /metrics` — observability

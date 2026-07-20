@@ -1,4 +1,5 @@
 """Factory functions for assembling adapters based on configuration."""
+import os
 from typing import List, Optional
 
 from config.loader import Settings
@@ -15,6 +16,9 @@ from rag_pipeline.internet_search.real_adapter import RealInternetSearchAdapter
 from rag_pipeline.llm_clients.base import LLMClient
 from rag_pipeline.llm_clients.fake_client import FakeLLMClient
 from rag_pipeline.llm_clients.openai_client import OpenAILLMClient
+from rag_pipeline.llm_clients.openai_compatible_client import (
+    OpenAICompatibleLLMClient,
+)
 from rag_pipeline.orchestration.pipeline import RAGPipeline
 from rag_pipeline.reranking.base import Reranker
 from rag_pipeline.reranking.cross_encoder_reranker import CrossEncoderReranker
@@ -34,14 +38,50 @@ def build_vector_store(settings: Settings) -> VectorStore:
     return MemoryVectorStore()
 
 
+_PROVIDER_ENV_KEYS = {
+    "openai": ["OPENAI_API_KEY"],
+    "copilot": ["COPILOT_API_KEY", "GITHUB_TOKEN"],
+    "kimi": ["MOONSHOT_API_KEY"],
+    "openrouter": ["OPENROUTER_API_KEY"],
+}
+
+_PROVIDER_DEFAULT_BASE_URL = {
+    "openai": None,
+    "copilot": "https://api.githubcopilot.com/chat/completions",
+    "kimi": "https://api.moonshot.cn/v1",
+    "openrouter": "https://openrouter.ai/api/v1",
+}
+
+
+def _api_key_for_provider(provider: str, settings: Settings) -> Optional[str]:
+    """Return the configured API key or the first matching env-var fallback."""
+    if settings.llm.api_key:
+        return settings.llm.api_key
+    for env_var in _PROVIDER_ENV_KEYS.get(provider, []):
+        value = os.getenv(env_var)
+        if value:
+            return value
+    return None
+
+
 def build_llm_client(settings: Settings) -> LLMClient:
-    if settings.llm.provider == "openai":
-        return OpenAILLMClient(
-            model=settings.llm.model,
-            temperature=settings.llm.temperature,
-            max_tokens=settings.llm.max_tokens,
-        )
-    return FakeLLMClient()
+    provider = settings.llm.provider
+    if provider == "fake":
+        return FakeLLMClient()
+
+    base_url = settings.llm.base_url or _PROVIDER_DEFAULT_BASE_URL[provider]
+    api_key = _api_key_for_provider(provider, settings)
+    common_kwargs = {
+        "model": settings.llm.model,
+        "temperature": settings.llm.temperature,
+        "max_tokens": settings.llm.max_tokens,
+        "api_key": api_key,
+        "base_url": base_url,
+    }
+
+    if provider == "openai":
+        return OpenAILLMClient(**common_kwargs)
+    return OpenAICompatibleLLMClient(provider=provider, **common_kwargs)
 
 
 def build_geo_mapper(settings: Settings) -> GeoMapper:
@@ -85,7 +125,10 @@ def build_reranker(settings: Settings) -> Reranker:
 def build_internet_search(settings: Settings) -> InternetSearchAdapter:
     if not settings.features.use_internet_search:
         return NullInternetSearchAdapter()
-    return RealInternetSearchAdapter()
+    return RealInternetSearchAdapter(
+        search_api_url=settings.internet_search.search_api_url,
+        api_key=settings.internet_search.api_key,
+    )
 
 
 def build_propagation_engine(

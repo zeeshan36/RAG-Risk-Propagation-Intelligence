@@ -49,6 +49,16 @@ def test_openai_client_fails_gracefully_when_missing(monkeypatch):
         OpenAILLMClient(api_key="test")
 
 
+def test_openai_compatible_client_fails_gracefully_when_missing(monkeypatch):
+    _block_import(monkeypatch, "openai")
+    from rag_pipeline.llm_clients.openai_compatible_client import (
+        OpenAICompatibleLLMClient,
+    )
+
+    with pytest.raises(ImportError):
+        OpenAICompatibleLLMClient(provider="kimi", api_key="test")
+
+
 def test_neo4j_graph_store_fails_gracefully_when_missing(monkeypatch):
     _block_import(monkeypatch, "neo4j")
     from graph.utils.graph_client import Neo4jGraphStore

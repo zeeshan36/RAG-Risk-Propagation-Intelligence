@@ -34,17 +34,24 @@ class VectorStoreConfig(BaseModel):
 
 
 class LLMConfig(BaseModel):
-    provider: Literal["fake", "openai"] = "fake"
+    provider: Literal["fake", "openai", "copilot", "kimi", "openrouter"] = "fake"
     model: str = "gpt-4o"
     temperature: float = 0.0
     max_tokens: int = 2048
+    api_key: Optional[str] = None
+    base_url: Optional[str] = None
 
 
 class GraphDBConfig(BaseModel):
     provider: Literal["neo4j", "memory"] = "neo4j"
     uri: str = "bolt://localhost:7687"
     user: str = "neo4j"
-    password: str = "password"
+    password: Optional[str] = None
+
+
+class InternetSearchConfig(BaseModel):
+    search_api_url: Optional[str] = None
+    api_key: Optional[str] = None
 
 
 class ServerConfig(BaseModel):
@@ -71,6 +78,7 @@ class Settings(BaseModel):
     vector_store: VectorStoreConfig = Field(default_factory=VectorStoreConfig)
     llm: LLMConfig = Field(default_factory=LLMConfig)
     graph_db: GraphDBConfig = Field(default_factory=GraphDBConfig)
+    internet_search: InternetSearchConfig = Field(default_factory=InternetSearchConfig)
     server: ServerConfig = Field(default_factory=ServerConfig)
     reranker: RerankerConfig = Field(default_factory=RerankerConfig)
     chunking: ChunkingConfig = Field(default_factory=ChunkingConfig)
@@ -83,7 +91,7 @@ class Settings(BaseModel):
                 "USE_ADVANCED_GRAPH_ALGO requires USE_GRAPH_DB to be enabled."
             )
         if self.features.use_graph_db and self.graph_db.provider == "neo4j":
-            # Password left as default is a smell but allowed in dev/test.
+            # Neo4j password should be supplied via config or RAGRP_GRAPH_DB__PASSWORD.
             pass
         return self
 
